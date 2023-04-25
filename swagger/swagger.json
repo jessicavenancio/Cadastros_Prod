@@ -1,0 +1,498 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de estudos",
+        "version": "1.0.0",
+        "description": "API para gerenciamento e cadastro do produtos."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/",
+            "description": "Servidor local"
+        }
+    ],
+    "paths": {
+        "/produtos": {
+            "post": {
+                "summary": "Cria um novo produto",
+                "tags": [
+                    "produtos"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Produto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produto criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Produto criado com sucesso"
+                                        },
+                                        "produto": {
+                                            "$ref": "#/components/schemas/Produto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro na validação dos dados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Erro na validação dos dados"
+                                        },
+                                        "erro": {
+                                            "type": "string",
+                                            "example": "O campo nome é obrigatório"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ocorreu um erro",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensagem": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Erro ao criar o produto no banco de dados"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Busca produtos de acordo com os parâmetros informados",
+                "tags": [
+                    "produtos"
+                ],
+                "parameters": [
+                    {
+                        "name": "nome",
+                        "in": "query",
+                        "description": "Nome do produto (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "categoria",
+                        "in": "query",
+                        "description": "Categoria do produto (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "precoMin",
+                        "in": "query",
+                        "description": "Preço mínimo do produto (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "precoMax",
+                        "in": "query",
+                        "description": "Preço máximo do produto (opcional)",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de produtos que correspondem aos filtros informados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProdutosAtualiza"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhum produto encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/erro"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/produtos/{id}": {
+            "get": {
+                "summary": "Obter um produto específico pelo ID",
+                "tags": [
+                    "produtos"
+                ],
+                "description": "Retorna um objeto contendo as informações do produto com o ID especificado.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do produto a ser encontrado",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produto encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Mensagem de sucesso"
+                                        },
+                                        "produto": {
+                                            "$ref": "#/components/schemas/Produto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Produto não encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Mensagem de erro"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "produtos"
+                ],
+                "summary": "Atualiza um produto existente",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProdutosAtualiza"
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do produto a ser atualizado",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produto atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Produto"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Produto não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Excluir um produto",
+                "tags": [
+                    "produtos"
+                ],
+                "description": "Exclui um produto pelo ID.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "description": "ID do produto a ser excluído",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produto excluído com sucesso.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Mensagem de confirmação de exclusão do produto.",
+                                            "example": "Produto excluído."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Produto não encontrado.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Mensagem de erro informando que o produto não foi encontrado.",
+                                            "example": "Produto não encontrado."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Mensagem de erro informando que ocorreu um erro interno no servidor.",
+                                            "example": "Um erro aconteceu."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Produto": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do produto",
+                        "example": "Camiseta"
+                    },
+                    "descricao": {
+                        "type": "string",
+                        "description": "Descrição do produto",
+                        "example": "Camiseta de algodão"
+                    },
+                    "quantidade": {
+                        "type": "integer",
+                        "description": "Quantidade de produtos disponíveis",
+                        "example": 50
+                    },
+                    "preco": {
+                        "type": "string",
+                        "description": "Preço do produto",
+                        "example": "R$ 49,90"
+                    },
+                    "desconto": {
+                        "type": "string",
+                        "description": "Porcentagem de desconto do produto",
+                        "example": "10%"
+                    },
+                    "dataDesconto": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Data de início do desconto",
+                        "example": "2023-05-01T00:00:00Z"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "description": "Categoria do produto",
+                        "example": "Roupas"
+                    },
+                    "imagem": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Imagem do produto (formatos suportados: JPEG, PNG, GIF)",
+                        "example": "iVBORw0KGg... (base64-encoded binary data)",
+                        "content": {
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "in": "formData"
+                    }
+                },
+                "required": [
+                    "nome",
+                    "descricao",
+                    "quantidade",
+                    "preco",
+                    "categoria",
+                    "imagem"
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ]
+            },
+            "ErroValidacao": {
+                "type": "object",
+                "properties": {
+                    "mensagem": {
+                        "type": "string",
+                        "description": "Mensagem de erro",
+                        "example": "Erro na validação dos dados"
+                    },
+                    "erro": {
+                        "type": "string",
+                        "description": "Descrição do erro",
+                        "example": "nome é obrigatório"
+                    }
+                },
+                "required": [
+                    "mensagem",
+                    "erro"
+                ]
+            },
+            "ProdutosAtualiza": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do produto"
+                    },
+                    "descricao": {
+                        "type": "string",
+                        "description": "Descrição do produto"
+                    },
+                    "quantidade": {
+                        "type": "number",
+                        "description": "Quantidade em estoque do produto"
+                    },
+                    "preco": {
+                        "type": "string",
+                        "description": "Preço do produto"
+                    },
+                    "desconto": {
+                        "type": "string",
+                        "description": "Desconto aplicável ao produto"
+                    },
+                    "dataDesconto": {
+                        "type": "string",
+                        "description": "Data de expiração do desconto"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "description": "Categoria do produto"
+                    },
+                    "imagem": {
+                        "type": "string",
+                        "format": "binary",
+                        "description": "Imagem do produto (formatos suportados: JPEG, PNG, GIF)",
+                        "example": "iVBORw0KGg... (base64-encoded binary data)",
+                        "content": {
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "in": "formData"
+                    }
+                }
+            },
+            "erro": {
+                "type": "object",
+                "properties": {
+                    "mensagem": {
+                        "type": "string"
+                    },
+                    "error": {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "stack": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
